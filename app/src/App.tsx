@@ -39,6 +39,7 @@ function App() {
   });
 
   const { currentPage, goToNextPage, goToPreviousPage } = usePagination();
+
   const paginatedBeforeLunchTimes = paginateArray(
     beforeLunchTimes,
     currentPage,
@@ -51,18 +52,11 @@ function App() {
     PAGE_SIZE
   );
 
+  // Zip the arrays
   const allTimes = paginatedAfterLunchTimes.map((time, index) => ({
     beforeLunch: paginatedBeforeLunchTimes[index],
     afterLunch: time,
   }));
-
-  function paginateArray<T>(array: T[], page: number, pageSize: number): T[] {
-    const startIndex = (page - 1) * pageSize;
-    if (startIndex >= array.length) {
-      return [];
-    }
-    return array.slice(startIndex, Math.min(page * pageSize, array.length));
-  }
 
   function handleEndDate(value: string) {
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -98,82 +92,79 @@ function App() {
   }
 
   return (
-    <main className="mx-16 my-8 ">
-      <h1 className="text-2xl my-8"> När sker dosering?</h1>
-      <div className="w-1/2 h-1/2">
-        <div className="flex flex-col gap-4 w-96">
-          <div>
-            <p> Start datum</p>
-            <div className="flex gap-4 items-center">
-              <Input
-                defaultValue={startDate.toISOString()}
-                disabled={isStartInputDisabled}
-                onChange={(value) => handleStartDate(value.target.value)}
-              />
+    <main className="py-12 px-36 w-[100vw] h-[100vh] bg-teal-800">
+      <div className="py-12 bg-white flex flex-col items-center rounded-xl backdrop-blur-3xl">
+        <h1 className="text-2xl my-8"> När sker dosering?</h1>
+        <div className="w-1/2 h-1/2">
+          <div className="flex flex-col gap-4">
+            <div>
+              <p> Start datum</p>
+              <div className="flex gap-4 items-center">
+                <Input
+                  defaultValue={startDate.toISOString()}
+                  disabled={isStartInputDisabled}
+                  onChange={(value) => handleStartDate(value.target.value)}
+                />
 
-              <Checkbox
-                className="w-6 h-6"
-                onClick={() => setIsStartInputDisabled((prev) => !prev)}
-              />
+                <Checkbox
+                  className="w-6 h-6"
+                  onClick={() => setIsStartInputDisabled((prev) => !prev)}
+                />
+              </div>
+              {isStartDateError && (
+                <p className="text-red-500">
+                  {" "}
+                  Datum måste vara i formatet yyyy-mm-dd:tt:mm:ss.xxxZ
+                </p>
+              )}
             </div>
-            {isStartDateError && (
-              <p className="text-red-500">
-                {" "}
-                Datum måste vara i formatet yyyy-mm-dd:tt:mm:ss.xxxZ
-              </p>
-            )}
+            <div>
+              <p> Valt datum </p>
+              <Input
+                placeholder={extractYearMonthDay(endDate)}
+                onChange={(value) => handleEndDate(value.target.value)}
+              />
+              {isDateError && (
+                <p className="text-red-500">
+                  {" "}
+                  Datum måste vara i formatet yyyy-mm-dd
+                </p>
+              )}
+            </div>
           </div>
-          <div>
-            <p> Valt datum </p>
-            <Input
-              placeholder={extractYearMonthDay(endDate)}
-              onChange={(value) => handleEndDate(value.target.value)}
-            />
-            {isDateError && (
-              <p className="text-red-500">
-                {" "}
-                Datum måste vara i formatet yyyy-mm-dd
-              </p>
-            )}
-          </div>
-        </div>
 
-        <Table className="bg-white">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px]">Förmiddag</TableHead>
-              <TableHead> Eftermiddag</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {/* {paginatedBeforeLunchTimes.map((time) => (
-              <TableRow key={time}>
-                <TableCell>{extractTime(time)}</TableCell>
+          <Table className="bg-white">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">Förmiddag</TableHead>
+                <TableHead> Eftermiddag</TableHead>
               </TableRow>
-            ))} */}
-            {!isDateError &&
-              allTimes.map((x) => (
-                <TableRow>
-                  <TableCell> {extractTime(x.beforeLunch) ?? ""}</TableCell>
-                  <TableCell> {extractTime(x.afterLunch) ?? ""}</TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-        <Pagination>
-          <PaginationContent>
-            {allTimes.length > PAGE_SIZE && currentPage > 1 && (
-              <PaginationItem>
-                <PaginationPrevious onClick={goToPreviousPage} />
-              </PaginationItem>
-            )}
-            {allTimes.length > PAGE_SIZE && (
-              <PaginationItem>
-                <PaginationNext onClick={goToNextPage} />
-              </PaginationItem>
-            )}
-          </PaginationContent>
-        </Pagination>
+            </TableHeader>
+            <TableBody>
+              {!isDateError &&
+                allTimes.map((x) => (
+                  <TableRow>
+                    <TableCell> {extractTime(x.beforeLunch) ?? ""}</TableCell>
+                    <TableCell> {extractTime(x.afterLunch) ?? ""}</TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+          <Pagination>
+            <PaginationContent>
+              {allTimes.length > PAGE_SIZE && currentPage > 1 && (
+                <PaginationItem>
+                  <PaginationPrevious onClick={goToPreviousPage} />
+                </PaginationItem>
+              )}
+              {allTimes.length > PAGE_SIZE && (
+                <PaginationItem>
+                  <PaginationNext onClick={goToNextPage} />
+                </PaginationItem>
+              )}
+            </PaginationContent>
+          </Pagination>
+        </div>
       </div>
     </main>
   );
@@ -205,6 +196,14 @@ function padSingleCharWithZero(s: string) {
     return "0" + s;
   }
   return s;
+}
+
+function paginateArray<T>(array: T[], page: number, pageSize: number): T[] {
+  const startIndex = (page - 1) * pageSize;
+  if (startIndex >= array.length) {
+    return [];
+  }
+  return array.slice(startIndex, Math.min(page * pageSize, array.length));
 }
 
 export default App;
