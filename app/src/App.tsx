@@ -29,7 +29,9 @@ function App() {
 
   const [isStartInputDisabled, setIsStartInputDisabled] = useState(true);
 
-  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(
+    new Date(new Date().setHours(23, 0, 0, 0))
+  );
 
   const PAGE_SIZE = 22;
 
