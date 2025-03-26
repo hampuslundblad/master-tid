@@ -21,7 +21,6 @@ export interface TimeConfig {
 
 export function getTimes({ startDate, endDate }: TimeConfig) {
   const onlyGiveDatesOnThisDay = endDate.getUTCDate().toString();
-  console.log(onlyGiveDatesOnThisDay);
 
   const time: Time = new Time(startDate);
   const times: string[] = [];

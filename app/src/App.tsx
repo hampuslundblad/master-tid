@@ -63,6 +63,7 @@ function App() {
     }
     return array.slice(startIndex, Math.min(page * pageSize, array.length));
   }
+
   function handleEndDate(value: string) {
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(value)) {
@@ -77,7 +78,6 @@ function App() {
     try {
       const endDate = new Date(value);
       endDate.setHours(23, 0, 0, 0);
-      console.log(endDate.toISOString());
       setEndDate(endDate);
     } catch {
       setIsDateError(true);
@@ -98,7 +98,8 @@ function App() {
   }
 
   return (
-    <main>
+    <main className="mx-16 my-8 ">
+      <h1 className="text-2xl my-8"> När ska vi mäta?</h1>
       <div className="w-1/2 h-1/2">
         <div className="flex flex-col gap-4 w-96">
           <div>
@@ -161,14 +162,16 @@ function App() {
         </Table>
         <Pagination>
           <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious onClick={goToPreviousPage} />
-            </PaginationItem>
-            {
+            {allTimes.length > PAGE_SIZE && currentPage > 1 && (
+              <PaginationItem>
+                <PaginationPrevious onClick={goToPreviousPage} />
+              </PaginationItem>
+            )}
+            {allTimes.length > PAGE_SIZE && (
               <PaginationItem>
                 <PaginationNext onClick={goToNextPage} />
               </PaginationItem>
-            }
+            )}
           </PaginationContent>
         </Pagination>
       </div>
