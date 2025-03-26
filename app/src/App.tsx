@@ -19,10 +19,18 @@ import { Input } from "./components/ui/input";
 import { Checkbox } from "./components/ui/checkbox";
 import { useState } from "react";
 function App() {
-  const startDate = new Date("2025-03-21T12:42:00.000Z");
+  //const startDate = new Date("2025-03-21T12:42:00.000Z");
   // const endDate = new Date("2025-03-24T20:00:00.000Z");
 
   const [isDateError, setIsDateError] = useState(false);
+
+  const [isStartDateError, setIsStartDateError] = useState(false);
+
+  const [startDate, setStartDate] = useState<Date>(
+    new Date("2025-03-21T12:42:00.000Z")
+  );
+
+  const [isStartInputDisabled, setIsStartInputDisabled] = useState(true);
 
   const [endDate, setEndDate] = useState<Date>(new Date());
 
@@ -77,6 +85,25 @@ function App() {
     console.log(value);
   }
 
+  function handleStartDate(value: string) {
+    // const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    // if (!dateRegex.test(value)) {
+    //   setIsDateError(true);
+    //   return;
+    // }
+    try {
+      const startDate = new Date(value);
+      startDate.setHours(23, 0, 0, 0);
+      console.log(startDate.toISOString());
+      setStartDate(startDate);
+    } catch {
+      setIsStartDateError(true);
+    }
+
+    setIsStartDateError(false);
+    console.log(value);
+  }
+
   return (
     <main>
       <div className="w-1/2 h-1/2">
@@ -84,13 +111,30 @@ function App() {
           <div>
             <p> Start datum</p>
             <div className="flex gap-4 items-center">
-              <Input placeholder={"2025-03-02T:05:00:00.0000Z"} disabled />
-              <Checkbox className="w-6 h-6" />
+              <Input
+                defaultValue={startDate.toISOString()}
+                disabled={isStartInputDisabled}
+                onChange={(value) => handleStartDate(value.target.value)}
+              />
+
+              <Checkbox
+                className="w-6 h-6"
+                onClick={() => setIsStartInputDisabled((prev) => !prev)}
+              />
             </div>
+            {isStartDateError && (
+              <p className="text-red-500">
+                {" "}
+                Datum måste vara i formatet yyyy-mm-dd:tt:mm:ss.xxxZ
+              </p>
+            )}
           </div>
           <div>
             <p> Valt datum </p>
-            <Input onChange={(value) => handleEndDate(value.target.value)} />
+            <Input
+              placeholder={extractYearMonthDay(endDate)}
+              onChange={(value) => handleEndDate(value.target.value)}
+            />
             {isDateError && (
               <p className="text-red-500">
                 {" "}
@@ -151,6 +195,13 @@ function extractTime(date: string) {
     ":" +
     padSingleCharWithZero(seconds.toString())
   );
+}
+
+function extractYearMonthDay(date: Date): string {
+  const year = date.getFullYear();
+  const month = padSingleCharWithZero((date.getMonth() + 1).toString());
+  const day = padSingleCharWithZero(date.getDate().toString());
+  return `${year}-${month}-${day}`;
 }
 
 function padSingleCharWithZero(s: string) {

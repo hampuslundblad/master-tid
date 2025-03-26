@@ -34,11 +34,19 @@ export function getTimes({ startDate, endDate }: TimeConfig) {
   }
 
   let beforeLunchTimes = times.filter(
-    (x) => x.includes("T07:") || x.includes("T08:") || x.includes("T09:")
+    (x) =>
+      x.includes("T07:") ||
+      x.includes("T08:") ||
+      x.includes("T09:") ||
+      x.includes("T10:")
   );
 
   let afterLunchTimes = times.filter(
-    (x) => x.includes("T13:") || x.includes("T14:") || x.includes("T15:")
+    (x) =>
+      x.includes("T12:") ||
+      x.includes("T13:") ||
+      x.includes("T14:") ||
+      x.includes("T15:")
   );
 
   beforeLunchTimes = beforeLunchTimes.filter((x) =>
