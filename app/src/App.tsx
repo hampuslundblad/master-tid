@@ -94,7 +94,7 @@ function App() {
   }
 
   return (
-    <main className="py-12 px-36 w-[100vw] h-[100vh] bg-teal-800">
+    <main className="py-12 lg:px-36 w-[100vw] h-[100vh] bg-teal-800">
       <div className="py-12 bg-white flex flex-col items-center rounded-xl backdrop-blur-3xl">
         <h1 className="text-2xl my-8"> När sker dosering?</h1>
         <div className="w-1/2 h-1/2">
