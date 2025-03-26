@@ -99,7 +99,7 @@ function App() {
 
   return (
     <main className="mx-16 my-8 ">
-      <h1 className="text-2xl my-8"> När ska sker dosering?</h1>
+      <h1 className="text-2xl my-8"> När sker dosering?</h1>
       <div className="w-1/2 h-1/2">
         <div className="flex flex-col gap-4 w-96">
           <div>
