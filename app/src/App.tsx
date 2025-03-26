@@ -17,9 +17,14 @@ import { getTimes } from "./lib/time";
 import { usePagination } from "./hooks/usePagination";
 import { Input } from "./components/ui/input";
 import { Checkbox } from "./components/ui/checkbox";
+import { useState } from "react";
 function App() {
   const startDate = new Date("2025-03-21T12:42:00.000Z");
-  const endDate = new Date("2025-03-24T20:00:00.000Z");
+  // const endDate = new Date("2025-03-24T20:00:00.000Z");
+
+  const [isDateError, setIsDateError] = useState(false);
+
+  const [endDate, setEndDate] = useState<Date>(new Date());
 
   const PAGE_SIZE = 22;
 
@@ -41,13 +46,10 @@ function App() {
     PAGE_SIZE
   );
 
-  console.log(afterLunchTimes);
-
   const allTimes = paginatedAfterLunchTimes.map((time, index) => ({
     beforeLunch: paginatedBeforeLunchTimes[index],
     afterLunch: time,
   }));
-  console.log(allTimes);
 
   function paginateArray<T>(array: T[], page: number, pageSize: number): T[] {
     const startIndex = (page - 1) * pageSize;
@@ -55,6 +57,24 @@ function App() {
       return [];
     }
     return array.slice(startIndex, Math.min(page * pageSize, array.length));
+  }
+  function handleEndDate(value: string) {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(value)) {
+      setIsDateError(true);
+      return;
+    }
+    try {
+      const endDate = new Date(value);
+      endDate.setHours(23, 0, 0, 0);
+      console.log(endDate.toISOString());
+      setEndDate(endDate);
+    } catch {
+      setIsDateError(true);
+    }
+
+    setIsDateError(false);
+    console.log(value);
   }
 
   return (
@@ -70,7 +90,13 @@ function App() {
           </div>
           <div>
             <p> Valt datum </p>
-            <Input defaultValue={new Date(Date.now()).toISOString()} />
+            <Input onChange={(value) => handleEndDate(value.target.value)} />
+            {isDateError && (
+              <p className="text-red-500">
+                {" "}
+                Datum måste vara i formatet yyyy-mm-dd
+              </p>
+            )}
           </div>
         </div>
 
@@ -87,12 +113,13 @@ function App() {
                 <TableCell>{extractTime(time)}</TableCell>
               </TableRow>
             ))} */}
-            {allTimes.map((x) => (
-              <TableRow>
-                <TableCell> {extractTime(x.beforeLunch) ?? ""}</TableCell>
-                <TableCell> {extractTime(x.afterLunch) ?? ""}</TableCell>
-              </TableRow>
-            ))}
+            {!isDateError &&
+              allTimes.map((x) => (
+                <TableRow>
+                  <TableCell> {extractTime(x.beforeLunch) ?? ""}</TableCell>
+                  <TableCell> {extractTime(x.afterLunch) ?? ""}</TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
         <Pagination>
@@ -116,10 +143,13 @@ function extractTime(date: string) {
   const dateTime = new Date(date);
   const hours = dateTime.getUTCHours();
   const minutes = dateTime.getUTCMinutes();
+  const seconds = dateTime.getUTCSeconds();
   return (
     padSingleCharWithZero(hours.toString()) +
     ":" +
-    padSingleCharWithZero(minutes.toString())
+    padSingleCharWithZero(minutes.toString()) +
+    ":" +
+    padSingleCharWithZero(seconds.toString())
   );
 }
 
