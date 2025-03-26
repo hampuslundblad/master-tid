@@ -19,9 +19,6 @@ import { Input } from "./components/ui/input";
 import { Checkbox } from "./components/ui/checkbox";
 import { useState } from "react";
 function App() {
-  //const startDate = new Date("2025-03-21T12:42:00.000Z");
-  // const endDate = new Date("2025-03-24T20:00:00.000Z");
-
   const [isDateError, setIsDateError] = useState(false);
 
   const [isStartDateError, setIsStartDateError] = useState(false);
@@ -72,6 +69,11 @@ function App() {
       setIsDateError(true);
       return;
     }
+    if (isNaN(Date.parse(value))) {
+      setIsDateError(true);
+      return;
+    }
+
     try {
       const endDate = new Date(value);
       endDate.setHours(23, 0, 0, 0);
@@ -82,26 +84,17 @@ function App() {
     }
 
     setIsDateError(false);
-    console.log(value);
   }
-
   function handleStartDate(value: string) {
-    // const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    // if (!dateRegex.test(value)) {
-    //   setIsDateError(true);
-    //   return;
-    // }
-    try {
-      const startDate = new Date(value);
-      startDate.setHours(23, 0, 0, 0);
-      console.log(startDate.toISOString());
-      setStartDate(startDate);
-    } catch {
+    if (isNaN(Date.parse(value))) {
       setIsStartDateError(true);
+      return;
     }
 
+    const startDate = new Date(value);
+    setStartDate(startDate);
+
     setIsStartDateError(false);
-    console.log(value);
   }
 
   return (
