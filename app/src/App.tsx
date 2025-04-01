@@ -1,23 +1,11 @@
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "./components/ui/pagination";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "./components/ui/table";
 import { getTimes } from "./lib/time";
-import { usePagination } from "./hooks/usePagination";
 import { Input } from "./components/ui/input";
 import { Checkbox } from "./components/ui/checkbox";
 import { useState } from "react";
+import { LockIcon, UnlockIcon } from "lucide-react";
+import { padSingleCharWithZero } from "./utils/time";
+import TimeTable from "./components/TimeTable";
+import { isInvalidDate } from "./utils/date";
 function App() {
   const [isDateError, setIsDateError] = useState(false);
 
@@ -33,54 +21,11 @@ function App() {
     new Date(new Date().setHours(23, 0, 0, 0))
   );
 
-  const PAGE_SIZE = 22;
-
   const { beforeLunchTimes, afterLunchTimes } = getTimes({
     startDate: startDate,
     endDate: endDate,
   });
 
-  const { currentPage, goToNextPage, goToPreviousPage } = usePagination();
-
-  const paginatedBeforeLunchTimes = paginateArray(
-    beforeLunchTimes,
-    currentPage,
-    PAGE_SIZE
-  );
-
-  const paginatedAfterLunchTimes = paginateArray(
-    afterLunchTimes,
-    currentPage,
-    PAGE_SIZE
-  );
-
-  // Zip the arrays
-  const allTimes = paginatedAfterLunchTimes.map((time, index) => ({
-    beforeLunch: paginatedBeforeLunchTimes[index],
-    afterLunch: time,
-  }));
-
-  function handleEndDate(value: string) {
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(value)) {
-      setIsDateError(true);
-      return;
-    }
-    if (isNaN(Date.parse(value))) {
-      setIsDateError(true);
-      return;
-    }
-
-    try {
-      const endDate = new Date(value);
-      endDate.setHours(23, 0, 0, 0);
-      setEndDate(endDate);
-    } catch {
-      setIsDateError(true);
-    }
-
-    setIsDateError(false);
-  }
   function handleStartDate(value: string) {
     if (isNaN(Date.parse(value))) {
       setIsStartDateError(true);
@@ -93,96 +38,81 @@ function App() {
     setIsStartDateError(false);
   }
 
+  function handleEndDate(value: string) {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(value)) {
+      setIsDateError(true);
+      return;
+    }
+    console.log(Date.parse(value));
+    if (isInvalidDate(value)) {
+      console.log("invalid date");
+      setIsDateError(true);
+      return;
+    }
+
+    const endDate = new Date(value);
+    endDate.setHours(23, 0, 0, 0);
+    setEndDate(endDate);
+
+    setIsDateError(false);
+  }
+
   return (
     <main className="py-12 lg:px-36 w-[100vw] h-[100vh] bg-teal-800">
       <div className="py-12 bg-white flex flex-col items-center rounded-xl backdrop-blur-3xl">
         <h1 className="text-2xl my-8"> När sker dosering?</h1>
+
         <div className="w-1/2 h-1/2">
           <div className="flex flex-col gap-4">
             <div>
-              <p> Start datum</p>
+              <p className="font-bold mb-2"> Start datum</p>
               <div className="flex gap-4 items-center">
                 <Input
                   defaultValue={startDate.toISOString()}
                   disabled={isStartInputDisabled}
                   onChange={(value) => handleStartDate(value.target.value)}
                 />
-
-                <Checkbox
-                  className="w-6 h-6"
-                  onClick={() => setIsStartInputDisabled((prev) => !prev)}
-                />
+                <div className="flex items-center gap-4">
+                  <Checkbox
+                    className="w-6 h-6"
+                    onClick={() => setIsStartInputDisabled((prev) => !prev)}
+                  />
+                  {isStartInputDisabled ? (
+                    <LockIcon className="w-4 h-4" />
+                  ) : (
+                    <UnlockIcon className="w-4 h-4" />
+                  )}
+                </div>
               </div>
               {isStartDateError && (
                 <p className="text-red-500">
-                  {" "}
                   Datum måste vara i formatet yyyy-mm-dd:tt:mm:ss.xxxZ
                 </p>
               )}
             </div>
             <div>
-              <p> Valt datum </p>
+              <p className="font-bold mb-2"> Valt datum </p>
               <Input
                 placeholder={extractYearMonthDay(endDate)}
                 onChange={(value) => handleEndDate(value.target.value)}
               />
               {isDateError && (
                 <p className="text-red-500">
-                  {" "}
                   Datum måste vara i formatet yyyy-mm-dd
                 </p>
               )}
             </div>
           </div>
-
-          <Table className="bg-white">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">Förmiddag</TableHead>
-                <TableHead> Eftermiddag</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {!isDateError &&
-                allTimes.map((x) => (
-                  <TableRow>
-                    <TableCell> {extractTime(x.beforeLunch) ?? ""}</TableCell>
-                    <TableCell> {extractTime(x.afterLunch) ?? ""}</TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-          <Pagination>
-            <PaginationContent>
-              {allTimes.length > PAGE_SIZE && currentPage > 1 && (
-                <PaginationItem>
-                  <PaginationPrevious onClick={goToPreviousPage} />
-                </PaginationItem>
-              )}
-              {allTimes.length > PAGE_SIZE && (
-                <PaginationItem>
-                  <PaginationNext onClick={goToNextPage} />
-                </PaginationItem>
-              )}
-            </PaginationContent>
-          </Pagination>
+          <div className="mt-8">
+            <TimeTable
+              beforeLunchTimes={isDateError ? [] : beforeLunchTimes}
+              afterLunchTimes={isDateError ? [] : afterLunchTimes}
+            />
+          </div>
         </div>
       </div>
     </main>
-  );
-}
-
-function extractTime(date: string) {
-  const dateTime = new Date(date);
-  const hours = dateTime.getUTCHours();
-  const minutes = dateTime.getUTCMinutes();
-  const seconds = dateTime.getUTCSeconds();
-  return (
-    padSingleCharWithZero(hours.toString()) +
-    ":" +
-    padSingleCharWithZero(minutes.toString()) +
-    ":" +
-    padSingleCharWithZero(seconds.toString())
   );
 }
 
@@ -191,21 +121,6 @@ function extractYearMonthDay(date: Date): string {
   const month = padSingleCharWithZero((date.getMonth() + 1).toString());
   const day = padSingleCharWithZero(date.getDate().toString());
   return `${year}-${month}-${day}`;
-}
-
-function padSingleCharWithZero(s: string) {
-  if (s.length == 1) {
-    return "0" + s;
-  }
-  return s;
-}
-
-function paginateArray<T>(array: T[], page: number, pageSize: number): T[] {
-  const startIndex = (page - 1) * pageSize;
-  if (startIndex >= array.length) {
-    return [];
-  }
-  return array.slice(startIndex, Math.min(page * pageSize, array.length));
 }
 
 export default App;

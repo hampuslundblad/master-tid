@@ -49,11 +49,11 @@ export function getTimes({ startDate, endDate }: TimeConfig) {
   );
 
   beforeLunchTimes = beforeLunchTimes.filter((x) =>
-    x.includes("03" + "-" + onlyGiveDatesOnThisDay)
+    x.includes("04" + "-" + onlyGiveDatesOnThisDay)
   );
 
   afterLunchTimes = afterLunchTimes.filter((x) =>
-    x.includes("03" + "-" + onlyGiveDatesOnThisDay)
+    x.includes("04" + "-" + onlyGiveDatesOnThisDay)
   );
 
   return {
