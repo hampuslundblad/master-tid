@@ -1,3 +1,5 @@
+import { padSingleCharWithZero } from "@/utils/time";
+
 // ISO
 class Time {
   private date!: Date;
@@ -49,11 +51,11 @@ export function getTimes({ startDate, endDate }: TimeConfig) {
   );
 
   beforeLunchTimes = beforeLunchTimes.filter((x) =>
-    x.includes("04" + "-" + onlyGiveDatesOnThisDay)
+    x.includes("04" + "-" + padSingleCharWithZero(onlyGiveDatesOnThisDay))
   );
 
   afterLunchTimes = afterLunchTimes.filter((x) =>
-    x.includes("04" + "-" + onlyGiveDatesOnThisDay)
+    x.includes("04" + "-" + padSingleCharWithZero(onlyGiveDatesOnThisDay))
   );
 
   return {

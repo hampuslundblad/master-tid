@@ -25,7 +25,6 @@ function App() {
     startDate: startDate,
     endDate: endDate,
   });
-
   function handleStartDate(value: string) {
     if (isNaN(Date.parse(value))) {
       setIsStartDateError(true);
