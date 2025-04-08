@@ -11,8 +11,9 @@ function App() {
 
   const [isStartDateError, setIsStartDateError] = useState(false);
 
+  // Gammalt "2025-03-21T12:42:00.000Z"
   const [startDate, setStartDate] = useState<Date>(
-    new Date("2025-03-21T12:42:00.000Z")
+    new Date("2025-04-07T12:27:00.000Z")
   );
 
   const [isStartInputDisabled, setIsStartInputDisabled] = useState(true);
