@@ -1,0 +1,15 @@
+name: Test and Deploy to Github Pages
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+  test:
+    uses: ./.github/workflows/test.yaml
+  deploy:
+    needs: test
+    uses: ./.github/workflows/pages.yaml
