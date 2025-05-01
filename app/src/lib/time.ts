@@ -1,4 +1,4 @@
-import { padSingleCharWithZero } from "@/utils/time";
+import { padLeftSingleCharWithZero } from "@/utils/padding";
 
 // ISO
 class Time {
@@ -24,6 +24,11 @@ export interface TimeConfig {
 export function getTimes({ startDate, endDate }: TimeConfig) {
   const onlyGiveDatesOnThisDay = endDate.getUTCDate().toString();
 
+  const endDateMonth = padLeftSingleCharWithZero(
+    (endDate.getUTCMonth() + 1).toString()
+  );
+  console.log(endDateMonth);
+  console.log(endDateMonth);
   const time: Time = new Time(startDate);
   const times: string[] = [];
 
@@ -49,13 +54,20 @@ export function getTimes({ startDate, endDate }: TimeConfig) {
       x.includes("T14:") ||
       x.includes("T15:")
   );
-
   beforeLunchTimes = beforeLunchTimes.filter((x) =>
-    x.includes("04" + "-" + padSingleCharWithZero(onlyGiveDatesOnThisDay))
+    x.includes(
+      endDateMonth.toString() +
+        "-" +
+        padLeftSingleCharWithZero(onlyGiveDatesOnThisDay)
+    )
   );
 
   afterLunchTimes = afterLunchTimes.filter((x) =>
-    x.includes("04" + "-" + padSingleCharWithZero(onlyGiveDatesOnThisDay))
+    x.includes(
+      endDateMonth.toString() +
+        "-" +
+        padLeftSingleCharWithZero(onlyGiveDatesOnThisDay)
+    )
   );
 
   return {

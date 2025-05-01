@@ -1,4 +1,4 @@
-export function padSingleCharWithZero(s: string) {
+export function padLeftSingleCharWithZero(s: string) {
   if (s.length == 1) {
     return "0" + s;
   }

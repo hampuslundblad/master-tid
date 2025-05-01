@@ -14,7 +14,7 @@ import {
   TableCell,
   Table,
 } from "./ui/table";
-import { padSingleCharWithZero } from "@/utils/time";
+import { padLeftSingleCharWithZero } from "@/utils/padding";
 
 interface TimeTableProps {
   beforeLunchTimes: string[];
@@ -86,11 +86,11 @@ function extractTime(date: string) {
   const minutes = dateTime.getUTCMinutes();
   const seconds = dateTime.getUTCSeconds();
   return (
-    padSingleCharWithZero(hours.toString()) +
+    padLeftSingleCharWithZero(hours.toString()) +
     ":" +
-    padSingleCharWithZero(minutes.toString()) +
+    padLeftSingleCharWithZero(minutes.toString()) +
     ":" +
-    padSingleCharWithZero(seconds.toString())
+    padLeftSingleCharWithZero(seconds.toString())
   );
 }
 

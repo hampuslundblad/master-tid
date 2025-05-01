@@ -3,17 +3,18 @@ import { Input } from "./components/ui/input";
 import { Checkbox } from "./components/ui/checkbox";
 import { useState } from "react";
 import { LockIcon, UnlockIcon } from "lucide-react";
-import { padSingleCharWithZero } from "./utils/time";
 import TimeTable from "./components/TimeTable";
-import { isInvalidDate } from "./utils/date";
+import { extractYearMonthDay, isInvalidDate } from "./utils/date";
 function App() {
   const [isDateError, setIsDateError] = useState(false);
 
   const [isStartDateError, setIsStartDateError] = useState(false);
 
   // Gammalt "2025-03-21T12:42:00.000Z"
+  // 2025-04-23T07.54:00.000Z
+
   const [startDate, setStartDate] = useState<Date>(
-    new Date("2025-04-23T07:54:00.000Z")
+    new Date("2025-04-30T10:15:00.000Z")
   );
 
   const [isStartInputDisabled, setIsStartInputDisabled] = useState(true);
@@ -26,8 +27,9 @@ function App() {
     startDate: startDate,
     endDate: endDate,
   });
+
   function handleStartDate(value: string) {
-    if (isNaN(Date.parse(value))) {
+    if (isInvalidDate(value)) {
       setIsStartDateError(true);
       return;
     }
@@ -39,14 +41,12 @@ function App() {
   }
 
   function handleEndDate(value: string) {
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(value)) {
+    if (isInvalidDate(value)) {
       setIsDateError(true);
       return;
     }
-    console.log(Date.parse(value));
+
     if (isInvalidDate(value)) {
-      console.log("invalid date");
       setIsDateError(true);
       return;
     }
@@ -114,13 +114,6 @@ function App() {
       </div>
     </main>
   );
-}
-
-function extractYearMonthDay(date: Date): string {
-  const year = date.getFullYear();
-  const month = padSingleCharWithZero((date.getMonth() + 1).toString());
-  const day = padSingleCharWithZero(date.getDate().toString());
-  return `${year}-${month}-${day}`;
 }
 
 export default App;
